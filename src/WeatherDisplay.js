@@ -1,8 +1,19 @@
-import React from 'react';
-import { useWeather } from './WeatherProvider';
+// WeatherDisplay.js
+import React, { useState } from "react";
+import { useWeather } from "./WeatherProvider";
+import WeatherCard from "./WeatherCard";
+import cities from "./cityData";
 
 const WeatherDisplay = () => {
-  const { weatherData, loading, error } = useWeather();
+  const { weatherData, initialCity, loading, error, fetchData } = useWeather();
+  const [selectedCity, setSelectedCity] = useState(initialCity);
+
+  const handleCityChange = (e) => {
+    const newCity = e.target.value;
+    setSelectedCity(newCity);
+    // Fetch weather data for the selected city
+    fetchData(newCity);
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -13,16 +24,21 @@ const WeatherDisplay = () => {
   }
 
   return (
-    <div>
-      <h1>{weatherData.city.name} Weather Forecast</h1>
-      <ul>
-        {weatherData.list.map(day => (
-          <li key={day.dt}>
-            <strong>{new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'long' })}:</strong>
-            Weather: {day.weather[0].description}, High: {day.temp.max}°C, Low: {day.temp.min}°C
-          </li>
+    <div className="weather-container">
+      <h1>Weather Forecast</h1>
+      <label htmlFor="citySelect">Select a City: </label>
+      <select id="citySelect" value={selectedCity} onChange={handleCityChange}>
+        {cities.map((city) => (
+          <option key={city} value={city}>
+            {city}
+          </option>
         ))}
-      </ul>
+      </select>
+      <div className="weather-cards-container">
+        {weatherData.list.map((day) => (
+          <WeatherCard key={day.dt} day={day} />
+        ))}
+      </div>
     </div>
   );
 };
